@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { Outline } from '../types/outline';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api'; // 根据实际情况调整
 
 export const getOutline = async (outlineId: string): Promise<Outline> => {
   const response = await axios.get<Outline>(`${API_BASE_URL}/outlines/${outlineId}`);

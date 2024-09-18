@@ -1,7 +1,7 @@
 // src/components/OutlineView.tsx
 
 import React from 'react';
-import { Outline, Chapter } from '../types/outline';
+import { Outline } from '../types/outline';
 import ChapterComponent from './Chapter';
 import { Typography, Box } from '@mui/material';
 
@@ -12,7 +12,7 @@ interface OutlineViewProps {
 
 const OutlineView: React.FC<OutlineViewProps> = ({ outline, setOutline }) => {
   return (
-    <Box>
+    <Box mt={4}>
       <Typography variant="h5" gutterBottom>
         {outline.title}
       </Typography>

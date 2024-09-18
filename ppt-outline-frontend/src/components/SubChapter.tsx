@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { SubChapter } from '../types/outline';
 import PointComponent from './Point';
 import { editOutline } from '../services/api';
-import { Button, Typography, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import { Button, Typography, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Checkbox, FormControlLabel } from '@mui/material';
 
 interface SubChapterProps {
   subChapter: SubChapter;
@@ -16,15 +16,28 @@ const SubChapterComponent: React.FC<SubChapterProps> = ({ subChapter, outlineId,
   const [open, setOpen] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>(subChapter.title);
   const [regenerate, setRegenerate] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleEdit = async () => {
-    const updatedOutline = await editOutline(outlineId, { subChapterId: subChapter.id }, newTitle, regenerate);
-    setOutline(updatedOutline);
-    setOpen(false);
+    if (!newTitle.trim()) {
+      alert('子章节标题不能为空');
+      return;
+    }
+    setLoading(true);
+    try {
+      const updatedOutline = await editOutline(outlineId, { subChapterId: subChapter.id }, newTitle, regenerate);
+      setOutline(updatedOutline);
+      setOpen(false);
+    } catch (error) {
+      console.error('编辑子章节失败:', error);
+      alert('编辑子章节失败，请重试');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Box sx={{ border: '1px solid #aaa', padding: '8px', marginTop: '8px', marginLeft: '20px' }}>
+    <Box sx={{ border: '1px solid #aaa', padding: '8px', marginTop: '8px', marginLeft: '20px', borderRadius: '5px' }}>
       <Typography variant="subtitle1">
         {subChapter.title}
         <Button variant="outlined" size="small" onClick={() => setOpen(true)} style={{ marginLeft: '10px' }}>
@@ -50,15 +63,24 @@ const SubChapterComponent: React.FC<SubChapterProps> = ({ subChapter, outlineId,
             onChange={(e) => setNewTitle(e.target.value)}
           />
           <Box mt={2}>
-            <label>
-              <input type="checkbox" checked={regenerate} onChange={(e) => setRegenerate(e.target.checked)} />
-              &nbsp;根据新的子章节标题重新生成小点
-            </label>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={regenerate}
+                  onChange={(e) => setRegenerate(e.target.checked)}
+                  name="regenerate"
+                  color="primary"
+                />
+              }
+              label="根据新的子章节标题重新生成小点"
+            />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>取消</Button>
-          <Button onClick={handleEdit}>保存</Button>
+          <Button onClick={() => setOpen(false)} disabled={loading}>取消</Button>
+          <Button onClick={handleEdit} disabled={loading}>
+            {loading ? '保存中...' : '保存'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
